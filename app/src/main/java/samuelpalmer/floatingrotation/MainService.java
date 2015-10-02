@@ -4,103 +4,24 @@ package samuelpalmer.floatingrotation;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.Surface;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
-import android.widget.ImageView;
+
+import samuelpalmer.floatingrotation.FloatingButton.Listener;
 
 public class MainService extends Service {
-	private WindowManager windowManager;
-	private ImageView floatingButton;
-	private Point availableSpace = new Point();
-	private LayoutParams buttonLayout;
+
+	private FloatingButton floatingButton;
 
 	private void handleStart(){
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
-		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-		floatingButton = new ImageView(this);
-		floatingButton.setImageResource(R.mipmap.ic_portrait_button);
-
-		this.buttonLayout = new WindowManager.LayoutParams(
-				LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT,
-				LayoutParams.TYPE_PHONE,
-				LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-				PixelFormat.TRANSLUCENT);
-		this.buttonLayout.gravity = Gravity.TOP | Gravity.LEFT;
-		this.buttonLayout.x = 0;
-		this.buttonLayout.y = 100;
-
-		updateWindowSize();
-
-		windowManager.addView(floatingButton, this.buttonLayout);
-
-		final GestureDetector gestureDetector = new GestureDetector(MainService.this, new OnGestureListener() {
-
-			public int offset_x;
-			public int offset_y;
-
+		floatingButton = new FloatingButton(this, new Listener() {
 			@Override
-			public boolean onDown(MotionEvent e) {
-				return false;
-			}
-
-			@Override
-			public void onShowPress(MotionEvent e) {
-				int x_cord = (int) e.getRawX();
-				int y_cord = (int) e.getRawY();
-
-				offset_x = x_cord - MainService.this.buttonLayout.x;
-				offset_y = y_cord - MainService.this.buttonLayout.y;
-			}
-
-			@Override
-			public boolean onSingleTapUp(MotionEvent e) {
+			public void clicked() {
 				toggle();
-				return true;
-			}
-
-			@Override
-			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-				int x_cord = (int) e2.getRawX();
-				int y_cord = (int) e2.getRawY();
-
-				MainService.this.buttonLayout.x = x_cord - offset_x;
-				MainService.this.buttonLayout.y = y_cord - offset_y;
-				wrap();
-
-				windowManager.updateViewLayout(floatingButton, MainService.this.buttonLayout);
-
-				return true;
-			}
-
-			@Override
-			public void onLongPress(MotionEvent e) {}
-
-			@Override
-			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-				return false;
-			}
-		});
-		gestureDetector.setIsLongpressEnabled(false);
-
-		floatingButton.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
 			}
 		});
 
@@ -110,42 +31,6 @@ public class MainService extends Service {
 			.setContentText("Touch to toggle floating button")
 			.setContentIntent(PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction("TOGGLE"), PendingIntent.FLAG_UPDATE_CURRENT))
 			.build());
-	}
-
-	private void wrap() {
-		buttonLayout.x = Math.min(Math.max(buttonLayout.x, 0), maxX());
-		buttonLayout.y = Math.min(Math.max(buttonLayout.y, 0), maxY());
-	}
-
-	private int maxX() {
-		return availableSpace.x - 1 - floatingButton.getWidth();
-	}
-
-	private int maxY() {
-		return availableSpace.y - 1 - floatingButton.getHeight();
-	}
-
-	private void updateWindowSize() {
-		windowManager.getDefaultDisplay().getSize(availableSpace);
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-
-		environmentChanged();
-	}
-
-	private void environmentChanged() {
-		double xProportion = (double) buttonLayout.x / maxX();
-		double yProportion = (double) buttonLayout.y / maxY();
-
-		updateWindowSize();
-
-		buttonLayout.x = (int)Math.round(xProportion * maxX());
-		buttonLayout.y = (int)Math.round(yProportion * maxY());
-
-		windowManager.updateViewLayout(floatingButton, buttonLayout);
 	}
 
 	private void toggle(){
@@ -169,7 +54,7 @@ public class MainService extends Service {
 			return super.onStartCommand(intent, flags, startId);
 		}else{
 			if (intent.getAction() != null && intent.getAction().equals("TOGGLE"))
-				floatingButton.setVisibility(floatingButton.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+				floatingButton.toggleVisibility();
 
 			return Service.START_NOT_STICKY;
 		}
@@ -179,8 +64,10 @@ public class MainService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		
-		if (floatingButton != null)
-			windowManager.removeView(floatingButton);
+		if (floatingButton != null) {
+			floatingButton.destroy();
+			floatingButton = null;
+		}
 	}
 	
 	
