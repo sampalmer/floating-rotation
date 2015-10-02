@@ -23,8 +23,8 @@ import android.widget.ImageView;
 public class MainService extends Service {
 	private WindowManager windowManager;
 	private ImageView floatingButton;
-	private Point szWindow = new Point();
-	private LayoutParams params;
+	private Point availableSpace = new Point();
+	private LayoutParams buttonLayout;
 
 	private void handleStart(){
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
@@ -34,19 +34,19 @@ public class MainService extends Service {
 		floatingButton = new ImageView(this);
 		floatingButton.setImageResource(R.mipmap.ic_portrait_button);
 
-		this.params = new WindowManager.LayoutParams(
+		this.buttonLayout = new WindowManager.LayoutParams(
 				LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT,
 				LayoutParams.TYPE_PHONE,
 				LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
 				PixelFormat.TRANSLUCENT);
-		this.params.gravity = Gravity.TOP | Gravity.LEFT;
-		this.params.x = 0;
-		this.params.y = 100;
+		this.buttonLayout.gravity = Gravity.TOP | Gravity.LEFT;
+		this.buttonLayout.x = 0;
+		this.buttonLayout.y = 100;
 
 		updateWindowSize();
 
-		windowManager.addView(floatingButton, this.params);
+		windowManager.addView(floatingButton, this.buttonLayout);
 
 		final GestureDetector gestureDetector = new GestureDetector(MainService.this, new OnGestureListener() {
 
@@ -63,8 +63,8 @@ public class MainService extends Service {
 				int x_cord = (int) e.getRawX();
 				int y_cord = (int) e.getRawY();
 
-				offset_x = x_cord - MainService.this.params.x;
-				offset_y = y_cord - MainService.this.params.y;
+				offset_x = x_cord - MainService.this.buttonLayout.x;
+				offset_y = y_cord - MainService.this.buttonLayout.y;
 			}
 
 			@Override
@@ -78,11 +78,11 @@ public class MainService extends Service {
 				int x_cord = (int) e2.getRawX();
 				int y_cord = (int) e2.getRawY();
 
-				MainService.this.params.x = x_cord - offset_x;
-				MainService.this.params.y = y_cord - offset_y;
+				MainService.this.buttonLayout.x = x_cord - offset_x;
+				MainService.this.buttonLayout.y = y_cord - offset_y;
 				wrap();
 
-				windowManager.updateViewLayout(floatingButton, MainService.this.params);
+				windowManager.updateViewLayout(floatingButton, MainService.this.buttonLayout);
 
 				return true;
 			}
@@ -113,20 +113,20 @@ public class MainService extends Service {
 	}
 
 	private void wrap() {
-		params.x = Math.min(Math.max(params.x, 0), maxX());
-		params.y = Math.min(Math.max(params.y, 0), maxY());
+		buttonLayout.x = Math.min(Math.max(buttonLayout.x, 0), maxX());
+		buttonLayout.y = Math.min(Math.max(buttonLayout.y, 0), maxY());
 	}
 
 	private int maxX() {
-		return szWindow.x - 1 - floatingButton.getWidth();
+		return availableSpace.x - 1 - floatingButton.getWidth();
 	}
 
 	private int maxY() {
-		return szWindow.y - 1 - floatingButton.getHeight();
+		return availableSpace.y - 1 - floatingButton.getHeight();
 	}
 
 	private void updateWindowSize() {
-		windowManager.getDefaultDisplay().getSize(szWindow);
+		windowManager.getDefaultDisplay().getSize(availableSpace);
 	}
 
 	@Override
@@ -137,15 +137,15 @@ public class MainService extends Service {
 	}
 
 	private void environmentChanged() {
-		double xProportion = (double)params.x / maxX();
-		double yProportion = (double)params.y / maxY();
+		double xProportion = (double) buttonLayout.x / maxX();
+		double yProportion = (double) buttonLayout.y / maxY();
 
 		updateWindowSize();
 
-		params.x = (int)Math.round(xProportion * maxX());
-		params.y = (int)Math.round(yProportion * maxY());
+		buttonLayout.x = (int)Math.round(xProportion * maxX());
+		buttonLayout.y = (int)Math.round(yProportion * maxY());
 
-		windowManager.updateViewLayout(floatingButton, params);
+		windowManager.updateViewLayout(floatingButton, buttonLayout);
 	}
 
 	private void toggle(){
