@@ -115,8 +115,16 @@ public class MainService extends Service {
 	}
 
 	private void wrap() {
-		params.x = Math.min(Math.max(params.x, 0), szWindow.x - 1 - chatheadView.getWidth());
-		params.y = Math.min(Math.max(params.y, 0), szWindow.y - 1 - chatheadView.getHeight());
+		params.x = Math.min(Math.max(params.x, 0), maxX());
+		params.y = Math.min(Math.max(params.y, 0), maxY());
+	}
+
+	private int maxX() {
+		return szWindow.x - 1 - chatheadView.getWidth();
+	}
+
+	private int maxY() {
+		return szWindow.y - 1 - chatheadView.getHeight();
 	}
 
 	private void updateWindowSize() {
@@ -127,8 +135,6 @@ public class MainService extends Service {
 			int h = windowManager.getDefaultDisplay().getHeight();
 			szWindow.set(w, h);
 		}
-
-		wrap();
 	}
 
 	@Override
@@ -139,7 +145,14 @@ public class MainService extends Service {
 	}
 
 	private void environmentChanged() {
+		double xProportion = (double)params.x / maxX();
+		double yProportion = (double)params.y / maxY();
+
 		updateWindowSize();
+
+		params.x = (int)Math.round(xProportion * maxX());
+		params.y = (int)Math.round(yProportion * maxY());
+
 		windowManager.updateViewLayout(chatheadView, params);
 	}
 
