@@ -7,9 +7,12 @@ android {
 	defaultConfig {
 		applicationId "samuelpalmer.floatingrotation"
 		minSdkVersion 14
-		targetSdkVersion 22
+
+		//noinspection OldTargetApi
+		targetSdkVersion 22 //Avoids the need to support runtime permission requests
+
 		versionCode 1
-		versionName "1.0"
+		versionName "0.1"
 	}
 	buildTypes {
 		release {
