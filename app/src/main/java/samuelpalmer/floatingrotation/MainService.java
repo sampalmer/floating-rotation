@@ -18,8 +18,8 @@ public class MainService extends Service {
 	private RotationState.Listener rotationChanged = new RotationState.Listener() {
 		@Override
 		public void rotationChanged() {
-			floatingButton.setIsPortrait(rotationState.isPortrait());
 			setForegroundNotification();
+			floatingButton.setIsPortrait(rotationState.isPortrait());
 		}
 	};
 
@@ -68,8 +68,10 @@ public class MainService extends Service {
 			floatingButton = null;
 		}
 
-		if (rotationState != null)
+		if (rotationState != null) {
+			rotationState.destroy();
 			rotationState = null;
+		}
 	}
 	
 	
