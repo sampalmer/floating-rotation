@@ -22,7 +22,7 @@ import android.widget.ImageView;
 
 public class MainService extends Service {
 	private WindowManager windowManager;
-	private ImageView chatheadView;
+	private ImageView floatingButton;
 	private Point szWindow = new Point();
 	private LayoutParams params;
 
@@ -31,8 +31,8 @@ public class MainService extends Service {
 
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-		chatheadView = new ImageView(this);
-		chatheadView.setImageResource(R.mipmap.ic_portrait_button);
+		floatingButton = new ImageView(this);
+		floatingButton.setImageResource(R.mipmap.ic_portrait_button);
 
 		this.params = new WindowManager.LayoutParams(
 				LayoutParams.WRAP_CONTENT,
@@ -46,7 +46,7 @@ public class MainService extends Service {
 
 		updateWindowSize();
 
-		windowManager.addView(chatheadView, this.params);
+		windowManager.addView(floatingButton, this.params);
 
 		final GestureDetector gestureDetector = new GestureDetector(MainService.this, new OnGestureListener() {
 
@@ -80,10 +80,9 @@ public class MainService extends Service {
 
 				MainService.this.params.x = x_cord - offset_x;
 				MainService.this.params.y = y_cord - offset_y;
-
 				wrap();
 
-				windowManager.updateViewLayout(chatheadView, MainService.this.params);
+				windowManager.updateViewLayout(floatingButton, MainService.this.params);
 
 				return true;
 			}
@@ -98,7 +97,7 @@ public class MainService extends Service {
 		});
 		gestureDetector.setIsLongpressEnabled(false);
 
-		chatheadView.setOnTouchListener(new View.OnTouchListener() {
+		floatingButton.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				return gestureDetector.onTouchEvent(event);
@@ -119,11 +118,11 @@ public class MainService extends Service {
 	}
 
 	private int maxX() {
-		return szWindow.x - 1 - chatheadView.getWidth();
+		return szWindow.x - 1 - floatingButton.getWidth();
 	}
 
 	private int maxY() {
-		return szWindow.y - 1 - chatheadView.getHeight();
+		return szWindow.y - 1 - floatingButton.getHeight();
 	}
 
 	private void updateWindowSize() {
@@ -146,7 +145,7 @@ public class MainService extends Service {
 		params.x = (int)Math.round(xProportion * maxX());
 		params.y = (int)Math.round(yProportion * maxY());
 
-		windowManager.updateViewLayout(chatheadView, params);
+		windowManager.updateViewLayout(floatingButton, params);
 	}
 
 	private void toggle(){
@@ -170,7 +169,7 @@ public class MainService extends Service {
 			return super.onStartCommand(intent, flags, startId);
 		}else{
 			if (intent.getAction() != null && intent.getAction().equals("TOGGLE"))
-				chatheadView.setVisibility(chatheadView.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+				floatingButton.setVisibility(floatingButton.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
 
 			return Service.START_NOT_STICKY;
 		}
@@ -180,8 +179,8 @@ public class MainService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		
-		if (chatheadView != null)
-			windowManager.removeView(chatheadView);
+		if (floatingButton != null)
+			windowManager.removeView(floatingButton);
 	}
 	
 	
