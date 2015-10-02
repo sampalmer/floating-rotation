@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -128,13 +127,7 @@ public class MainService extends Service {
 	}
 
 	private void updateWindowSize() {
-		if (Build.VERSION.SDK_INT >= 13) {
-			windowManager.getDefaultDisplay().getSize(szWindow);
-		} else {
-			int w = windowManager.getDefaultDisplay().getWidth();
-			int h = windowManager.getDefaultDisplay().getHeight();
-			szWindow.set(w, h);
-		}
+		windowManager.getDefaultDisplay().getSize(szWindow);
 	}
 
 	@Override
