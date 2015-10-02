@@ -22,12 +22,12 @@ public class FloatingButton {
 	private final LayoutParams layout;
 	private Point availableSpace = new Point();
 
-	public FloatingButton(Context context, final Listener listener) {
+	public FloatingButton(Context context, boolean isPortrait, final Listener listener) {
 		this.context = context;
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
 		view = new ImageView(context);
-		view.setImageResource(R.mipmap.ic_portrait_button);
+		setIsPortrait(isPortrait);
 
 		this.layout = new WindowManager.LayoutParams(
 			LayoutParams.WRAP_CONTENT,
@@ -105,6 +105,10 @@ public class FloatingButton {
 	public void destroy() {
 		context.unregisterComponentCallbacks(configChangedCallback);
 		windowManager.removeView(view);
+	}
+
+	public void setIsPortrait(boolean isPortrait) {
+		view.setImageResource(isPortrait ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button);
 	}
 
 	public void toggleVisibility() {
