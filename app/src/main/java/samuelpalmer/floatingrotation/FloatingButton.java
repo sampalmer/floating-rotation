@@ -33,7 +33,7 @@ public class FloatingButton {
 			LayoutParams.WRAP_CONTENT,
 			LayoutParams.WRAP_CONTENT,
 			LayoutParams.TYPE_PHONE,
-			LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+			LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
 			PixelFormat.TRANSLUCENT);
 		this.layout.gravity = Gravity.TOP | Gravity.LEFT;
 		this.layout.x = 0;
