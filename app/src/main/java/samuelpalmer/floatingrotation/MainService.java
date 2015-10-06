@@ -38,11 +38,13 @@ public class MainService extends Service {
 	}
 
 	private void setForegroundNotification() {
+		//noinspection deprecation
 		startForeground(1, new NotificationCompat.Builder(this)
 			.setSmallIcon(rotationState.isPortrait() ? R.drawable.ic_notification_portrait : R.drawable.ic_notification_landscape)
 			.setContentTitle(getResources().getString(R.string.app_name))
 			.setContentText("Touch to toggle floating button")
 			.setContentIntent(PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction("TOGGLE"), PendingIntent.FLAG_UPDATE_CURRENT))
+			.setColor(getResources().getColor(R.color.colorPrimary))
 			.build());
 	}
 
