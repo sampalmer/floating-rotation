@@ -38,6 +38,7 @@ public class FloatingButton {
 		this.layout.gravity = Gravity.TOP | Gravity.LEFT;
 		this.layout.x = 0;
 		this.layout.y = 100;
+		this.layout.alpha = 0.5f;
 
 		updateWindowSize();
 
