@@ -18,93 +18,105 @@ public class FloatingButton {
 
 	private final Context context;
 	private final PersistedState storage;
-	private final WindowManager windowManager;
+	private WindowManager windowManager;
 	private final ImageView view;
-	private final LayoutParams layout;
+	private LayoutParams layout;
 	private Point availableSpace = new Point();
+	private boolean initialised;
 
-	public FloatingButton(Context context, final Listener listener, int imageResource) {
+	public FloatingButton(final Context context, final Listener listener, int imageResource) {
 		this.context = context;
 		this.storage = new PersistedState(context);
-		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
-		updateWindowSize();
+		view = new ImageView(context) {
+			@Override
+			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+				if (oldw == 0 && oldh == 0 && !initialised) {
+					updateWindowSize();
+					setPosition(storage.getButtonXPositionPercentage(), storage.getButtonYPositionPercentage());
 
-		view = new ImageView(context);
+					final GestureDetector gestureDetector = new GestureDetector(context, new SimpleOnGestureListener() {
+
+						public int offset_x;
+						public int offset_y;
+
+						@Override
+						public void onShowPress(MotionEvent e) {
+							int x_cord = (int) e.getRawX();
+							int y_cord = (int) e.getRawY();
+
+							offset_x = x_cord - layout.x;
+							offset_y = y_cord - layout.y;
+						}
+
+						@Override
+						public boolean onSingleTapUp(MotionEvent e) {
+							listener.clicked();
+							return true;
+						}
+
+						@Override
+						public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+							int x_cord = (int) e2.getRawX();
+							int y_cord = (int) e2.getRawY();
+
+							layout.x = x_cord - offset_x;
+							layout.y = y_cord - offset_y;
+							wrap();
+
+							windowManager.updateViewLayout(view, layout);
+
+							return true;
+						}
+
+					}) {
+						@Override
+						public boolean onTouchEvent(MotionEvent ev) {
+							boolean handled = super.onTouchEvent(ev);
+							if ((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP && !handled)
+								savePosition();
+
+							return handled;
+						}
+					};
+					gestureDetector.setIsLongpressEnabled(false);
+
+					view.setOnTouchListener(new View.OnTouchListener() {
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+							return gestureDetector.onTouchEvent(event);
+						}
+					});
+
+					context.registerComponentCallbacks(configChangedCallback);
+
+					initialised = true;
+				}
+			}
+		};
 		setImage(imageResource);
 		setIsVisible(storage.getButtonVisibility());
 
-		this.layout = new WindowManager.LayoutParams(
+		layout = new WindowManager.LayoutParams(
 			LayoutParams.WRAP_CONTENT,
 			LayoutParams.WRAP_CONTENT,
 			LayoutParams.TYPE_PHONE,
 			LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
 			PixelFormat.TRANSLUCENT);
-		this.layout.gravity = Gravity.TOP | Gravity.LEFT;
-		this.layout.alpha = 0.5f;
-		setPosition(storage.getButtonXPositionPercentage(), storage.getButtonYPositionPercentage());
+		layout.gravity = Gravity.TOP | Gravity.LEFT;
+		layout.alpha = 0.5f;
 
-		windowManager.addView(view, this.layout);
+		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
-		final GestureDetector gestureDetector = new GestureDetector(context, new SimpleOnGestureListener() {
-
-			public int offset_x;
-			public int offset_y;
-
-			@Override
-			public void onShowPress(MotionEvent e) {
-				int x_cord = (int) e.getRawX();
-				int y_cord = (int) e.getRawY();
-
-				offset_x = x_cord - layout.x;
-				offset_y = y_cord - layout.y;
-			}
-
-			@Override
-			public boolean onSingleTapUp(MotionEvent e) {
-				listener.clicked();
-				return true;
-			}
-
-			@Override
-			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-				int x_cord = (int) e2.getRawX();
-				int y_cord = (int) e2.getRawY();
-
-				layout.x = x_cord - offset_x;
-				layout.y = y_cord - offset_y;
-				wrap();
-
-				windowManager.updateViewLayout(view, layout);
-
-				return true;
-			}
-
-		}) {
-			@Override
-			public boolean onTouchEvent(MotionEvent ev) {
-				boolean handled = super.onTouchEvent(ev);
-				if ((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP && !handled)
-					savePosition();
-
-				return handled;
-			}
-		};
-		gestureDetector.setIsLongpressEnabled(false);
-
-		view.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
-			}
-		});
-
-		context.registerComponentCallbacks(configChangedCallback);
+		//Should happen first so the view gets dimensions
+		windowManager.addView(view, layout);
 	}
 
 	public void destroy() {
-		context.unregisterComponentCallbacks(configChangedCallback);
-		windowManager.removeView(view);
+		if (initialised) {
+			context.unregisterComponentCallbacks(configChangedCallback);
+			windowManager.removeView(view);
+		}
 	}
 
 	public void setImage(int imageResource) {
@@ -159,8 +171,6 @@ public class FloatingButton {
 		updateWindowSize();
 
 		setPosition(xProportion, yProportion);
-
-		windowManager.updateViewLayout(view, layout);
 	}
 
 	private double xProportion() {
@@ -174,6 +184,7 @@ public class FloatingButton {
 	private void setPosition(double xProportion, double yProportion) {
 		layout.x = (int)Math.round(xProportion * maxX());
 		layout.y = (int)Math.round(yProportion * maxY());
+		windowManager.updateViewLayout(view, layout);
 	}
 
 	private void savePosition() {
