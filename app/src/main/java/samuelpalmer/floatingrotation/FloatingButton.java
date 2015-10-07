@@ -6,7 +6,7 @@ import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,15 +46,10 @@ public class FloatingButton {
 
 		windowManager.addView(view, this.layout);
 
-		final GestureDetector gestureDetector = new GestureDetector(context, new OnGestureListener() {
+		final GestureDetector gestureDetector = new GestureDetector(context, new SimpleOnGestureListener() {
 
 			public int offset_x;
 			public int offset_y;
-
-			@Override
-			public boolean onDown(MotionEvent e) {
-				return false;
-			}
 
 			@Override
 			public void onShowPress(MotionEvent e) {
@@ -85,13 +80,6 @@ public class FloatingButton {
 				return true;
 			}
 
-			@Override
-			public void onLongPress(MotionEvent e) {}
-
-			@Override
-			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-				return false;
-			}
 		}) {
 			@Override
 			public boolean onTouchEvent(MotionEvent ev) {
