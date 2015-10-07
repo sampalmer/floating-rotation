@@ -27,7 +27,7 @@ public class MainService extends Service {
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
 		rotationState = new RotationState(this, rotationChanged);
-		floatingButton = new FloatingButton(this, rotationState.isPortrait(), new Listener() {
+		floatingButton = new FloatingButton(this, rotationState.isPortrait(), new PersistedState(this), new Listener() {
 			@Override
 			public void clicked() {
 				rotationState.toggle();

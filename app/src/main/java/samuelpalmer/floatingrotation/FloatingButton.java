@@ -17,17 +17,22 @@ import android.widget.ImageView;
 public class FloatingButton {
 
 	private final Context context;
+	private final PersistedState storage;
 	private final WindowManager windowManager;
 	private final ImageView view;
 	private final LayoutParams layout;
 	private Point availableSpace = new Point();
 
-	public FloatingButton(Context context, boolean isPortrait, final Listener listener) {
+	public FloatingButton(Context context, boolean isPortrait, PersistedState storage, final Listener listener) {
 		this.context = context;
+		this.storage = storage;
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+		updateWindowSize();
 
 		view = new ImageView(context);
 		setIsPortrait(isPortrait);
+		setIsVisible(storage.getButtonVisibility());
 
 		this.layout = new WindowManager.LayoutParams(
 			LayoutParams.WRAP_CONTENT,
@@ -36,11 +41,8 @@ public class FloatingButton {
 			LayoutParams.FLAG_NOT_FOCUSABLE | LayoutParams.FLAG_LAYOUT_IN_SCREEN,
 			PixelFormat.TRANSLUCENT);
 		this.layout.gravity = Gravity.TOP | Gravity.LEFT;
-		this.layout.x = 0;
-		this.layout.y = 100;
 		this.layout.alpha = 0.5f;
-
-		updateWindowSize();
+		setPosition(storage.getButtonXPositionPercentage(), storage.getButtonYPositionPercentage());
 
 		windowManager.addView(view, this.layout);
 
@@ -90,7 +92,16 @@ public class FloatingButton {
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 				return false;
 			}
-		});
+		}) {
+			@Override
+			public boolean onTouchEvent(MotionEvent ev) {
+				boolean handled = super.onTouchEvent(ev);
+				if ((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP && !handled)
+					savePosition();
+
+				return handled;
+			}
+		};
 		gestureDetector.setIsLongpressEnabled(false);
 
 		view.setOnTouchListener(new View.OnTouchListener() {
@@ -113,7 +124,16 @@ public class FloatingButton {
 	}
 
 	public void toggleVisibility() {
-		view.setVisibility(view.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+		setIsVisible(!isVisible());
+	}
+
+	private void setIsVisible(boolean visible) {
+		view.setVisibility(visible ? View.VISIBLE : View.GONE);
+		storage.setButtonVisibility(visible);
+	}
+
+	private boolean isVisible() {
+		return view.getVisibility() == View.VISIBLE;
 	}
 
 	private final ComponentCallbacks configChangedCallback = new ComponentCallbacks() {
@@ -145,15 +165,33 @@ public class FloatingButton {
 	}
 
 	private void environmentChanged() {
-		double xProportion = (double) layout.x / maxX();
-		double yProportion = (double) layout.y / maxY();
+		double xProportion = xProportion();
+		double yProportion = yProportion();
 
 		updateWindowSize();
 
-		layout.x = (int)Math.round(xProportion * maxX());
-		layout.y = (int)Math.round(yProportion * maxY());
+		setPosition(xProportion, yProportion);
 
 		windowManager.updateViewLayout(view, layout);
+
+		savePosition();
+	}
+
+	private double xProportion() {
+		return (double) layout.x / maxX();
+	}
+
+	private double yProportion() {
+		return (double) layout.y / maxY();
+	}
+
+	private void setPosition(double xProportion, double yProportion) {
+		layout.x = (int)Math.round(xProportion * maxX());
+		layout.y = (int)Math.round(yProportion * maxY());
+	}
+
+	private void savePosition() {
+		storage.setButtonPositionPercentages((float)xProportion(), (float)yProportion());
 	}
 
 	public interface Listener {
