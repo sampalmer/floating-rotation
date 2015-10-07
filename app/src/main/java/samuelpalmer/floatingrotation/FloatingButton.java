@@ -23,9 +23,9 @@ public class FloatingButton {
 	private final LayoutParams layout;
 	private Point availableSpace = new Point();
 
-	public FloatingButton(Context context, PersistedState storage, final Listener listener, int imageResource) {
+	public FloatingButton(Context context, final Listener listener, int imageResource) {
 		this.context = context;
-		this.storage = storage;
+		this.storage = new PersistedState(context);
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
 		updateWindowSize();
