@@ -173,8 +173,6 @@ public class FloatingButton {
 		setPosition(xProportion, yProportion);
 
 		windowManager.updateViewLayout(view, layout);
-
-		savePosition();
 	}
 
 	private double xProportion() {
