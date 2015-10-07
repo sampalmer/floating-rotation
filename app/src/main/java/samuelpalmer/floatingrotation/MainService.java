@@ -19,9 +19,13 @@ public class MainService extends Service {
 		@Override
 		public void rotationChanged() {
 			setForegroundNotification();
-			floatingButton.setImage(rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button);
+			floatingButton.setImage(buttonImage());
 		}
 	};
+
+	private int buttonImage() {
+		return rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button;
+	}
 
 	private void handleStart(){
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
@@ -32,7 +36,7 @@ public class MainService extends Service {
 			public void clicked() {
 				rotationState.toggle();
 			}
-		}, rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button);
+		}, buttonImage());
 
 		setForegroundNotification();
 	}
