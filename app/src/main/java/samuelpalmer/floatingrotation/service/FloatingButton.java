@@ -68,7 +68,7 @@ class FloatingButton {
 						@Override
 						public boolean onTouchEvent(MotionEvent ev) {
 							boolean handled = super.onTouchEvent(ev);
-							if ((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP && !handled)
+							if ((ev.getAction() & (MotionEvent.ACTION_UP | MotionEvent.ACTION_CANCEL)) != 0 && !handled)
 								savePosition();
 
 							return handled;
