@@ -4,6 +4,7 @@
 
 	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
 	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -21,7 +22,26 @@
         </activity>
 
 	    <service android:name=".service.MainService"
-		    android:process=":service" />
+		    android:process="@string/service_process_name" />
+
+        <receiver
+            android:name=".service.ServiceStateUpdatingReceiver"
+            android:process="@string/service_process_name">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+
+        </receiver>
+
+	    <provider
+		    android:authorities="@string/content_authority"
+		    android:name="samuelpalmer.common.contentprovidersharedpreferences.SharedPreferencesContentProvider"
+		    android:exported="false"
+		    android:process="@string/service_process_name" />
 
     </application>
 

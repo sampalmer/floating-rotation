@@ -10,19 +10,13 @@
 	android:paddingBottom="@dimen/activity_vertical_margin"
 	tools:context="samuelpalmer.floatingrotation.MainActivity">
 
-	<Button android:layout_width="220dp"
-	        android:layout_height="wrap_content"
-	        android:layout_centerInParent="true"
-	        android:text="Stop"
-	        android:layout_marginTop="20dp"
-	        android:layout_marginBottom="20dp"
-	        android:id="@+id/btnMsg" />
-
-	<Button android:layout_width="220dp"
-	        android:layout_height="wrap_content"
-	        android:id="@+id/btnStartService"
-	        android:layout_above="@id/btnMsg"
-	        android:layout_centerHorizontal="true"
-	        android:text="Start"/>
+	<Switch
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Enabled"
+		android:id="@+id/enabled"
+		android:layout_centerHorizontal="true"
+		android:layout_centerInParent="true"
+		/>
 
 </RelativeLayout>
