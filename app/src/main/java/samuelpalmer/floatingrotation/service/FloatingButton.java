@@ -37,17 +37,9 @@ class FloatingButton {
 
 					final GestureDetector gestureDetector = new GestureDetector(context, new SimpleOnGestureListener() {
 
-						public int offset_x;
-						public int offset_y;
-
-						@Override
-						public void onShowPress(MotionEvent e) {
-							int x_cord = (int) e.getRawX();
-							int y_cord = (int) e.getRawY();
-
-							offset_x = x_cord - layout.x;
-							offset_y = y_cord - layout.y;
-						}
+						private Long originalEventTime;
+						private int original_x;
+						private int original_y;
 
 						@Override
 						public boolean onSingleTapUp(MotionEvent e) {
@@ -57,11 +49,14 @@ class FloatingButton {
 
 						@Override
 						public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-							int x_cord = (int) e2.getRawX();
-							int y_cord = (int) e2.getRawY();
+							if (originalEventTime == null || e1.getEventTime() != originalEventTime) {
+								original_x = layout.x;
+								original_y = layout.y;
+								originalEventTime = e1.getEventTime();
+							}
 
-							layout.x = x_cord - offset_x;
-							layout.y = y_cord - offset_y;
+							layout.x = original_x + Math.round(e2.getRawX() - e1.getRawX());
+							layout.y = original_y + Math.round(e2.getRawY() - e1.getRawY());
 							wrap();
 
 							windowManager.updateViewLayout(view, layout);
