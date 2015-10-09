@@ -17,12 +17,20 @@ public class MainService extends Service {
 
 	private RotationState rotationState;
 	private FloatingButton floatingButton;
+	private PersistedState state;
 
-	private RotationState.Listener rotationChanged = new RotationState.Listener() {
+	private final RotationState.Listener rotationChanged = new RotationState.Listener() {
 		@Override
 		public void rotationChanged() {
 			setForegroundNotification();
 			floatingButton.setImage(buttonImage());
+		}
+	};
+
+	private final Listener buttonClickListener = new Listener() {
+		@Override
+		public void clicked() {
+			rotationState.toggle();
 		}
 	};
 
@@ -37,14 +45,21 @@ public class MainService extends Service {
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
 		rotationState = new RotationState(this, rotationChanged);
-		floatingButton = new FloatingButton(this, new Listener() {
-			@Override
-			public void clicked() {
-				rotationState.toggle();
-			}
-		}, buttonImage());
+		state = new PersistedState(this);
+
+		if (state.getButtonVisibility())
+			showButton();
 
 		setForegroundNotification();
+	}
+
+	private void showButton() {
+		floatingButton = new FloatingButton(this, buttonClickListener, buttonImage(), state);
+	}
+
+	private void hideButton() {
+		floatingButton.destroy();
+		floatingButton = null;
 	}
 
 	@Override
@@ -52,8 +67,7 @@ public class MainService extends Service {
 		super.onDestroy();
 
 		if (floatingButton != null) {
-			floatingButton.destroy();
-			floatingButton = null;
+			hideButton();
 		}
 
 		if (rotationState != null) {
@@ -75,8 +89,15 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE))
-			floatingButton.toggleVisibility();
+		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE)) {
+			boolean becomingVisible = floatingButton == null;
+			state.setButtonVisibility(becomingVisible);
+
+			if (becomingVisible)
+				showButton();
+			else
+				hideButton();
+		}
 
 		return Service.START_STICKY;
 	}

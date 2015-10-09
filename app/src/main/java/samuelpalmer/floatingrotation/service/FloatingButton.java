@@ -24,9 +24,9 @@ class FloatingButton {
 	private Point availableSpace = new Point();
 	private boolean initialised;
 
-	public FloatingButton(final Context context, final Listener listener, int imageResource) {
+	public FloatingButton(final Context context, final Listener listener, int imageResource, PersistedState state) {
 		this.context = context;
-		this.storage = new PersistedState(context);
+		this.storage = state;
 
 		view = new ImageView(context) {
 			@Override
@@ -95,7 +95,6 @@ class FloatingButton {
 			}
 		};
 		setImage(imageResource);
-		setIsVisible(storage.getButtonVisibility());
 
 		layout = new WindowManager.LayoutParams(
 			LayoutParams.WRAP_CONTENT,
@@ -121,19 +120,6 @@ class FloatingButton {
 
 	public void setImage(int imageResource) {
 		view.setImageResource(imageResource);
-	}
-
-	public void toggleVisibility() {
-		setIsVisible(!isVisible());
-	}
-
-	private void setIsVisible(boolean visible) {
-		view.setVisibility(visible ? View.VISIBLE : View.GONE);
-		storage.setButtonVisibility(visible);
-	}
-
-	private boolean isVisible() {
-		return view.getVisibility() == View.VISIBLE;
 	}
 
 	private final ComponentCallbacks configChangedCallback = new ComponentCallbacks() {
