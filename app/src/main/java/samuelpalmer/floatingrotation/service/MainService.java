@@ -28,7 +28,10 @@ public class MainService extends Service {
 		return rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button;
 	}
 
-	private void handleStart(){
+	@Override
+	public void onCreate() {
+		super.onCreate();
+
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
 		rotationState = new RotationState(this, rotationChanged);
@@ -55,15 +58,10 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(startId == Service.START_STICKY) {
-			handleStart();
-			return super.onStartCommand(intent, flags, startId);
-		}else{
-			if (intent.getAction() != null && intent.getAction().equals("TOGGLE"))
-				floatingButton.toggleVisibility();
+		if (intent != null && intent.getAction() != null && intent.getAction().equals("TOGGLE"))
+			floatingButton.toggleVisibility();
 
-			return Service.START_NOT_STICKY;
-		}
+		return Service.START_STICKY;
 	}
 
 	@Override
