@@ -84,6 +84,7 @@ public class MainService extends Service {
 			.setContentText("Touch to toggle floating button")
 			.setContentIntent(PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE), PendingIntent.FLAG_UPDATE_CURRENT))
 			.setColor(getResources().getColor(R.color.colorPrimary))
+			.setWhen(0) //For devices that don't support 'show when'
 			.build());
 	}
 
