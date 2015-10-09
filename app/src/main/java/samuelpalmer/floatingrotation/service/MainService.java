@@ -1,4 +1,4 @@
-package samuelpalmer.floatingrotation;
+package samuelpalmer.floatingrotation.service;
 
 
 import android.app.PendingIntent;
@@ -8,7 +8,8 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import samuelpalmer.floatingrotation.FloatingButton.Listener;
+import samuelpalmer.floatingrotation.R;
+import samuelpalmer.floatingrotation.service.FloatingButton.Listener;
 
 public class MainService extends Service {
 

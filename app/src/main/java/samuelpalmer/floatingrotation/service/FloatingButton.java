@@ -1,4 +1,4 @@
-package samuelpalmer.floatingrotation;
+package samuelpalmer.floatingrotation.service;
 
 import android.content.ComponentCallbacks;
 import android.content.Context;
@@ -14,7 +14,7 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
-public class FloatingButton {
+class FloatingButton {
 
 	private final Context context;
 	private final PersistedState storage;

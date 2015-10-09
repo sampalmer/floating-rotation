@@ -1,4 +1,4 @@
-package samuelpalmer.floatingrotation;
+package samuelpalmer.floatingrotation.service;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -13,7 +13,7 @@ import samuelpalmer.common.NaturalOrientationDetector;
 import samuelpalmer.common.Orientation;
 import samuelpalmer.common.Screen;
 
-public class RotationState {
+class RotationState {
 
 	private final ContentResolver contentResolver;
 	private final NaturalOrientationDetector naturalOrientation;
