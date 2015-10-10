@@ -23,7 +23,9 @@ public class MainService extends Service {
 		@Override
 		public void rotationChanged() {
 			setForegroundNotification();
-			floatingButton.setImage(buttonImage());
+
+			if (floatingButton != null)
+				floatingButton.setImage(buttonImage());
 		}
 	};
 
