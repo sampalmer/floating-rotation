@@ -9,36 +9,13 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import samuelpalmer.floatingrotation.R;
-import samuelpalmer.floatingrotation.service.FloatingButton.Listener;
 
 public class MainService extends Service {
 
 	private static final String TOGGLE = "TOGGLE";
 
 	private RotationState rotationState;
-	private FloatingButton floatingButton;
-	private PersistedState state;
-
-	private final RotationState.Listener rotationChanged = new RotationState.Listener() {
-		@Override
-		public void rotationChanged() {
-			setForegroundNotification();
-
-			if (floatingButton != null)
-				floatingButton.setImage(buttonImage());
-		}
-	};
-
-	private final Listener buttonClickListener = new Listener() {
-		@Override
-		public void clicked() {
-			rotationState.toggle();
-		}
-	};
-
-	private int buttonImage() {
-		return rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button;
-	}
+	private FloatingButtonManager buttonManager;
 
 	@Override
 	public void onCreate() {
@@ -47,35 +24,39 @@ public class MainService extends Service {
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
 		rotationState = new RotationState(this, rotationChanged);
-		state = new PersistedState(this);
-
-		if (state.getButtonVisibility())
-			showButton();
+		buttonManager = new FloatingButtonManager(this, buttonImage(), buttonClickListener);
 
 		setForegroundNotification();
-	}
-
-	private void showButton() {
-		floatingButton = new FloatingButton(this, buttonClickListener, buttonImage(), state);
-	}
-
-	private void hideButton() {
-		floatingButton.destroy();
-		floatingButton = null;
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 
-		if (floatingButton != null) {
-			hideButton();
-		}
+		buttonManager.destroy();
+		buttonManager = null;
 
-		if (rotationState != null) {
-			rotationState.destroy();
-			rotationState = null;
+		rotationState.destroy();
+		rotationState = null;
+	}
+
+	private final RotationState.Listener rotationChanged = new RotationState.Listener() {
+		@Override
+		public void rotationChanged() {
+			setForegroundNotification();
+			buttonManager.setImage(buttonImage());
 		}
+	};
+
+	private final FloatingButton.Listener buttonClickListener = new FloatingButton.Listener() {
+		@Override
+		public void clicked() {
+			rotationState.toggle();
+		}
+	};
+
+	private int buttonImage() {
+		return rotationState.isPortrait() ? R.mipmap.ic_portrait_button : R.mipmap.ic_landscape_button;
 	}
 
 	private void setForegroundNotification() {
@@ -92,15 +73,8 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE)) {
-			boolean becomingVisible = floatingButton == null;
-			state.setButtonVisibility(becomingVisible);
-
-			if (becomingVisible)
-				showButton();
-			else
-				hideButton();
-		}
+		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE))
+			buttonManager.toggleVisibility();
 
 		return Service.START_STICKY;
 	}
