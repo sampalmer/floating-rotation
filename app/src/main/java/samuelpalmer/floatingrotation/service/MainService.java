@@ -3,10 +3,14 @@ package samuelpalmer.floatingrotation.service;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import samuelpalmer.common.LockScreenMonitor;
 import samuelpalmer.common.eventhandling.EventHandler;
@@ -61,6 +65,20 @@ public class MainService extends Service {
 		@Override
 		public void clicked() {
 			rotationState.toggle();
+		}
+
+		@Override
+		public void longPressed() {
+			buttonManager.toggleVisibility();
+
+			//I want to make sure the user realises what's happened
+			AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+			if (audio.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+				Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+				vibrator.vibrate(33);
+			}
+			else
+				Toast.makeText(MainService.this, "Button hidden", Toast.LENGTH_SHORT).show();
 		}
 	};
 

@@ -48,6 +48,11 @@ class FloatingButton {
 						}
 
 						@Override
+						public void onLongPress(MotionEvent e) {
+							listener.longPressed();
+						}
+
+						@Override
 						public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 							if (originalEventTime == null || e1.getEventTime() != originalEventTime) {
 								original_x = layout.x;
@@ -74,7 +79,6 @@ class FloatingButton {
 							return handled;
 						}
 					};
-					gestureDetector.setIsLongpressEnabled(false);
 
 					view.setOnTouchListener(new View.OnTouchListener() {
 						@Override
@@ -99,6 +103,7 @@ class FloatingButton {
 			PixelFormat.TRANSLUCENT);
 		layout.gravity = Gravity.TOP | Gravity.LEFT;
 		layout.alpha = 0.5f;
+		layout.windowAnimations = android.R.style.Animation_Toast;
 
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
@@ -174,6 +179,7 @@ class FloatingButton {
 
 	public interface Listener {
 		void clicked();
+		void longPressed();
 	}
 
 }
