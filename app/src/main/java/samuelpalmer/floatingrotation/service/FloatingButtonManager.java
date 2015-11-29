@@ -18,7 +18,7 @@ public class FloatingButtonManager {
 		this.imageResource = imageResource;
 		this.buttonClickListener = buttonClickListener;
 
-		if (state.getButtonVisibility())
+		if (state.buttonVisibility().get())
 			showButton();
 	}
 
@@ -35,7 +35,7 @@ public class FloatingButtonManager {
 		else
 			hideButton();
 
-		state.setButtonVisibility(isVisible());
+		state.buttonVisibility().set(isVisible());
 	}
 
 	public void setImage(int imageResource) {

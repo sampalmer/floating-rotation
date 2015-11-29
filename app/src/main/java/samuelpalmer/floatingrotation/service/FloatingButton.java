@@ -14,6 +14,8 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
+import samuelpalmer.common.settings.application.Settings.Transaction;
+
 class FloatingButton {
 
 	private final Context context;
@@ -33,7 +35,7 @@ class FloatingButton {
 			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 				if (oldw == 0 && oldh == 0 && !initialised) {
 					updateWindowSize();
-					setPosition(storage.getButtonXPositionPercentage(), storage.getButtonYPositionPercentage());
+					setPosition(storage.buttonXPositionPercentage().get(), storage.buttonYPositionPercentage().get());
 
 					final GestureDetector gestureDetector = new GestureDetector(context, new SimpleOnGestureListener() {
 
@@ -174,7 +176,10 @@ class FloatingButton {
 	}
 
 	private void savePosition() {
-		storage.setButtonPositionPercentages((float)xProportion(), (float)yProportion());
+		Transaction transaction = storage.new Transaction();
+		storage.buttonXPositionPercentage().enqueue((float)xProportion(), transaction);
+		storage.buttonYPositionPercentage().enqueue((float)yProportion(), transaction);
+		transaction.commit();
 	}
 
 	public interface Listener {
