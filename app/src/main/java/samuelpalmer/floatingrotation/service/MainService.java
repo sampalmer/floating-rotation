@@ -28,15 +28,24 @@ public class MainService extends Service {
 	private RotationState rotationState;
 	private FloatingButtonManager buttonManager;
 	private LockScreenMonitor lockScreenMonitor;
+	private PersistedState state;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
+		state = new PersistedState(this);
+
+		Boolean originalAutoRotation = state.originalSystemAutoRotation().tryGet();
+		if (originalAutoRotation == null) { //If the app previously crashed, we might still know the value
+			boolean value = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1) == 1;
+			state.originalSystemAutoRotation().set(value);
+		}
+
 		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
 
 		rotationState = new RotationState(this, rotationChanged);
-		buttonManager = new FloatingButtonManager(this, buttonImage(), buttonClickListener);
+		buttonManager = new FloatingButtonManager(this, buttonImage(), buttonClickListener, state);
 		lockScreenMonitor = new LockScreenMonitor(this);
 
 		lockScreenMonitor.subscribe(notificationUpdater);
@@ -56,6 +65,10 @@ public class MainService extends Service {
 
 		rotationState.destroy();
 		rotationState = null;
+
+		boolean originalAutoRotation = state.originalSystemAutoRotation().get();
+		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, originalAutoRotation ? 1 : 0);
+		state.originalSystemAutoRotation().remove();
 	}
 
 	private final RotationState.Listener rotationChanged = new RotationState.Listener() {

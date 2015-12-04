@@ -24,4 +24,8 @@ class PersistedState extends Settings {
 		return new Setting<>(new FloatSetting(), "button_y_position_percentage", .5f);
 	}
 
+	public Setting<Boolean> originalSystemAutoRotation() {
+		return new Setting<>(new BooleanSetting(), "original_system_auto_rotation", null);
+	}
+
 }

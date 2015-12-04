@@ -12,13 +12,13 @@ public class FloatingButtonManager {
 	private int imageResource;
 	private FloatingButton floatingButton;
 
-	public FloatingButtonManager(Context context, int imageResource, Listener buttonClickListener) {
+	public FloatingButtonManager(Context context, int imageResource, Listener buttonClickListener, PersistedState state) {
 		this.context = context;
-		state = new PersistedState(context);
+		this.state = state;
 		this.imageResource = imageResource;
 		this.buttonClickListener = buttonClickListener;
 
-		if (state.buttonVisibility().get())
+		if (this.state.buttonVisibility().get())
 			showButton();
 	}
 
