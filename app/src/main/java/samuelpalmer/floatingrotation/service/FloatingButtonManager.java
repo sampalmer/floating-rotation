@@ -45,7 +45,7 @@ public class FloatingButtonManager {
 			floatingButton.setImage(imageResource);
 	}
 
-	private boolean isVisible() {
+	public boolean isVisible() {
 		return floatingButton != null;
 	}
 

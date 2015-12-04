@@ -1,6 +1,7 @@
 package samuelpalmer.floatingrotation.service;
 
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -10,10 +11,13 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.widget.Toast;
 
 import samuelpalmer.common.LockScreenMonitor;
 import samuelpalmer.common.eventhandling.EventHandler;
+import samuelpalmer.common.notifications.NotificationButtons;
+import samuelpalmer.floatingrotation.MainActivity;
 import samuelpalmer.floatingrotation.R;
 
 public class MainService extends Service {
@@ -69,7 +73,7 @@ public class MainService extends Service {
 
 		@Override
 		public void longPressed() {
-			buttonManager.toggleVisibility();
+			toggleButtonVisibility();
 
 			//I want to make sure the user realises what's happened
 			AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -81,6 +85,11 @@ public class MainService extends Service {
 				Toast.makeText(MainService.this, "Button hidden", Toast.LENGTH_SHORT).show();
 		}
 	};
+
+	private void toggleButtonVisibility() {
+		buttonManager.toggleVisibility();
+		setForegroundNotification();
+	}
 
 	private final EventHandler notificationUpdater = new EventHandler() {
 		@Override
@@ -95,23 +104,33 @@ public class MainService extends Service {
 
 	private void setForegroundNotification() {
 		//noinspection deprecation
-		startForeground(1, new NotificationCompat.Builder(this)
+		Notification notification = new Builder(this)
 			.setSmallIcon(rotationState.isPortrait() ? R.drawable.ic_notification_portrait : R.drawable.ic_notification_landscape)
-			.setContentTitle(getResources().getString(R.string.app_name))
-			.setContentText("Touch to toggle floating button")
-			.setContentIntent(PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE), PendingIntent.FLAG_UPDATE_CURRENT))
+			.setContentTitle("Rotation")
+			.setContentIntent(PendingIntent.getActivity(this, 2, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
 			.setColor(getResources().getColor(R.color.colorPrimary))
 			.setWhen(0) //For devices that don't support 'show when'
 			.setCategory(NotificationCompat.CATEGORY_STATUS)
 			.setVisibility(NotificationCompat.VISIBILITY_SECRET)
 			.setPriority(lockScreenMonitor.isOnLockScreen() ? NotificationCompat.PRIORITY_MIN : NotificationCompat.PRIORITY_DEFAULT)
-			.build());
+			.build();
+
+		new NotificationButtons(this, R.layout.notification)
+			.configureButton(
+				R.id.toggle_button_visibility,
+				buttonManager.isVisible() ? R.drawable.ic_action_visible : R.drawable.ic_action_invisible,
+				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE), PendingIntent.FLAG_UPDATE_CURRENT),
+				"Toggle button visibility"
+			)
+			.applyTo(notification);
+
+		startForeground(1, notification);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE))
-			buttonManager.toggleVisibility();
+			toggleButtonVisibility();
 
 		return Service.START_STICKY;
 	}
