@@ -105,7 +105,6 @@ class FloatingButton {
 			PixelFormat.TRANSLUCENT);
 		layout.gravity = Gravity.TOP | Gravity.LEFT;
 		layout.alpha = 0.5f;
-		layout.windowAnimations = android.R.style.Animation_Toast;
 
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
