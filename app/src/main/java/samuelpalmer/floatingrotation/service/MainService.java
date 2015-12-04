@@ -22,7 +22,8 @@ import samuelpalmer.floatingrotation.R;
 
 public class MainService extends Service {
 
-	private static final String TOGGLE = "TOGGLE";
+	private static final String TOGGLE_BUTTON_VISIBILITY = "TOGGLE_BUTTON_VISIBILITY";
+	private static final String TOGGLE_SCREEN_ROTATION = "TOGGLE_SCREEN_ROTATION";
 
 	private RotationState rotationState;
 	private FloatingButtonManager buttonManager;
@@ -119,8 +120,14 @@ public class MainService extends Service {
 			.configureButton(
 				R.id.toggle_button_visibility,
 				buttonManager.isVisible() ? R.drawable.ic_action_visible : R.drawable.ic_action_invisible,
-				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE), PendingIntent.FLAG_UPDATE_CURRENT),
+				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_BUTTON_VISIBILITY), PendingIntent.FLAG_UPDATE_CURRENT),
 				"Toggle button visibility"
+			)
+			.configureButton(
+				R.id.toggle_rotation,
+				R.drawable.ic_action_toggle_rotation,
+				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_SCREEN_ROTATION), PendingIntent.FLAG_UPDATE_CURRENT),
+				"Toggle screen rotation"
 			)
 			.applyTo(notification);
 
@@ -129,8 +136,17 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && intent.getAction() != null && intent.getAction().equals(TOGGLE))
-			toggleButtonVisibility();
+		if (intent != null && intent.getAction() != null)
+			switch (intent.getAction()) {
+				case TOGGLE_BUTTON_VISIBILITY:
+					toggleButtonVisibility();
+					break;
+				case TOGGLE_SCREEN_ROTATION:
+					rotationState.toggle();
+					break;
+				default:
+					throw new RuntimeException("Unknown action: " + intent.getAction());
+			}
 
 		return Service.START_STICKY;
 	}

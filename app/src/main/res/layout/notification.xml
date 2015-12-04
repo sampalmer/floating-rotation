@@ -8,6 +8,7 @@
     <LinearLayout style="@style/notification_buttons" >
 
         <include android:id="@+id/toggle_button_visibility" layout="@layout/notification_button" />
+        <include android:id="@+id/toggle_rotation" layout="@layout/notification_button" />
 
     </LinearLayout>
 
