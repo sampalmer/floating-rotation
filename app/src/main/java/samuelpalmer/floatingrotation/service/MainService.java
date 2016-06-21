@@ -11,12 +11,14 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import samuelpalmer.common.LockScreenMonitor;
 import samuelpalmer.common.eventhandling.EventHandler;
+import samuelpalmer.common.notifications.NotificationBuilderCompat;
 import samuelpalmer.common.notifications.NotificationButtons;
+import samuelpalmer.common.notifications.NotificationStyles;
 import samuelpalmer.floatingrotation.MainActivity;
 import samuelpalmer.floatingrotation.R;
 
@@ -29,6 +31,7 @@ public class MainService extends Service {
 	private FloatingButtonManager buttonManager;
 	private LockScreenMonitor lockScreenMonitor;
 	private PersistedState state;
+	private Integer actionButtonColour;
 
 	@Override
 	public void onCreate() {
@@ -117,32 +120,39 @@ public class MainService extends Service {
 	}
 
 	private void setForegroundNotification() {
-		//noinspection deprecation
-		Notification notification = new Builder(this)
-			.setSmallIcon(rotationState.isPortrait() ? R.drawable.ic_notification_portrait : R.drawable.ic_notification_landscape)
-			.setContentTitle("Rotation")
-			.setContentIntent(PendingIntent.getActivity(this, 2, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-			.setColor(getResources().getColor(R.color.colorPrimary))
-			.setWhen(0) //For devices that don't support 'show when'
-			.setCategory(NotificationCompat.CATEGORY_STATUS)
-			.setVisibility(NotificationCompat.VISIBILITY_SECRET)
-			.setPriority(lockScreenMonitor.isOnLockScreen() ? NotificationCompat.PRIORITY_MIN : NotificationCompat.PRIORITY_DEFAULT)
-			.build();
+		NotificationBuilderCompat builder = NotificationBuilderCompat.create(this)
+				.setSmallIcon(rotationState.isPortrait() ? R.drawable.ic_notification_portrait : R.drawable.ic_notification_landscape)
+				.setContentTitle("Rotation")
+				.setContentIntent(PendingIntent.getActivity(this, 2, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+				.setColor(getResources().getColor(R.color.colorPrimary))
+				.setWhen(0) //For devices that don't support 'show when'
+				.setCategory(NotificationCompat.CATEGORY_STATUS)
+				.setVisibility(NotificationCompat.VISIBILITY_SECRET)
+				.setPriority(lockScreenMonitor.isOnLockScreen() ? NotificationCompat.PRIORITY_MIN : NotificationCompat.PRIORITY_DEFAULT);
 
-		new NotificationButtons(this, R.layout.notification)
-			.configureButton(
-				R.id.toggle_button_visibility,
-				buttonManager.isVisible() ? R.drawable.ic_action_visible : R.drawable.ic_action_invisible,
-				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_BUTTON_VISIBILITY), PendingIntent.FLAG_UPDATE_CURRENT),
-				"Toggle button visibility"
-			)
-			.configureButton(
-				R.id.toggle_rotation,
-				R.drawable.ic_action_toggle_rotation,
-				PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_SCREEN_ROTATION), PendingIntent.FLAG_UPDATE_CURRENT),
-				"Toggle screen rotation"
-			)
-			.applyTo(notification);
+		if (actionButtonColour == null) {
+			NotificationStyles styles = new NotificationStyles(this, R.drawable.ic_action_toggle_rotation, getResources().getColor(R.color.colorPrimary));
+			actionButtonColour = styles.getActionButtonColour();
+		}
+
+		RemoteViews contentView = new NotificationButtons(this, R.layout.notification, builder.createContentView(), actionButtonColour)
+				.configureButton(
+						R.id.toggle_button_visibility,
+						buttonManager.isVisible() ? R.drawable.ic_action_visible : R.drawable.ic_action_invisible,
+						PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_BUTTON_VISIBILITY), PendingIntent.FLAG_UPDATE_CURRENT),
+						"Toggle button visibility"
+				)
+				.configureButton(
+						R.id.toggle_rotation,
+						R.drawable.ic_action_toggle_rotation,
+						PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_SCREEN_ROTATION), PendingIntent.FLAG_UPDATE_CURRENT),
+						"Toggle screen rotation"
+				)
+				.getContentView();
+
+		builder.setCustomContentView(contentView);
+
+		Notification notification = builder.build();
 
 		startForeground(1, notification);
 	}
