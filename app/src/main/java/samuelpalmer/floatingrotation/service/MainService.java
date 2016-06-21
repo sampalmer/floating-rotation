@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -120,18 +121,20 @@ public class MainService extends Service {
 	}
 
 	private void setForegroundNotification() {
+		int color = ContextCompat.getColor(this, R.color.colorPrimary);
+
 		NotificationBuilderCompat builder = NotificationBuilderCompat.create(this)
 				.setSmallIcon(rotationState.isPortrait() ? R.drawable.ic_notification_portrait : R.drawable.ic_notification_landscape)
 				.setContentTitle("Rotation")
 				.setContentIntent(PendingIntent.getActivity(this, 2, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
-				.setColor(getResources().getColor(R.color.colorPrimary))
+				.setColor(color)
 				.setWhen(0) //For devices that don't support 'show when'
 				.setCategory(NotificationCompat.CATEGORY_STATUS)
 				.setVisibility(NotificationCompat.VISIBILITY_SECRET)
 				.setPriority(lockScreenMonitor.isOnLockScreen() ? NotificationCompat.PRIORITY_MIN : NotificationCompat.PRIORITY_DEFAULT);
 
 		if (actionButtonColour == null) {
-			NotificationStyles styles = new NotificationStyles(this, R.drawable.ic_action_toggle_rotation, getResources().getColor(R.color.colorPrimary));
+			NotificationStyles styles = new NotificationStyles(this, R.drawable.ic_action_toggle_rotation, color);
 			actionButtonColour = styles.getActionButtonColour();
 		}
 
