@@ -12,9 +12,15 @@ public class NotificationButtons {
 	private final RemoteViews content;
 	private final int buttonColourArgb;
 
-	public NotificationButtons(Context context, int layoutResource, int buttonColourArgb) {
+	/**
+	 * @param originalNotification Get this from the notification builder.
+	 * @param buttonColourArgb Get this from {@link NotificationStyles#getActionButtonColour()}
+	 */
+	public NotificationButtons(Context context, int layoutResource, RemoteViews originalNotification, int buttonColourArgb) {
 		content = new RemoteViews(context.getPackageName(), layoutResource);
 		content.removeAllViews(R.id.notification_content);
+		content.addView(samuelpalmer.common.R.id.notification_content, originalNotification);
+
 		this.buttonColourArgb = buttonColourArgb;
 	}
 
@@ -32,6 +38,9 @@ public class NotificationButtons {
 		return this;
 	}
 
+	/**
+	 * Pass this into the notification builder.
+	 */
 	public RemoteViews getContentView() {
 		return content;
 	}

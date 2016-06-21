@@ -22,6 +22,9 @@ public final class NotificationStyles {
 	private final int exampleIconResource;
 	private final int colourArgb;
 
+	/**
+	 * You might want to cache the result for performance & memory.
+	 */
 	public NotificationStyles(Context context, int exampleActionIconResource, int colourArgb) {
 		this.context = context;
 		this.exampleIconResource = exampleActionIconResource;
