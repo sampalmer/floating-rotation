@@ -17,7 +17,7 @@ public class ServiceController {
 	}
 
 	public void updateServiceState() {
-		if (state.isEnabled()) {
+		if (state.enabled.get()) {
 			if (context.startService(serviceIntent()) == null)
 				throw new RuntimeException("Couldn't find service");
 		}

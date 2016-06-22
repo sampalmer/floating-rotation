@@ -12,16 +12,19 @@ import samuelpalmer.common.AndroidSurfaceRotation;
 import samuelpalmer.common.NaturalOrientationDetector;
 import samuelpalmer.common.Orientation;
 import samuelpalmer.common.Screen;
+import samuelpalmer.floatingrotation.PermissionManager;
 
 class RotationState {
 
 	private final ContentResolver contentResolver;
 	private final NaturalOrientationDetector naturalOrientation;
 	private final Listener listener;
+	private final PermissionManager permissionManager;
 	private Orientation currentRotation;
 
-	public RotationState(Context context, Listener listener) {
+	public RotationState(Context context, Listener listener, PermissionManager permissionManager) {
 		this.listener = listener;
+		this.permissionManager = permissionManager;
 		contentResolver = context.getContentResolver();
 		naturalOrientation = new NaturalOrientationDetector(new Screen((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)));
 
@@ -34,7 +37,10 @@ class RotationState {
 	}
 
 	public void toggle(){
-		Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, getNextRotation());
+		if (permissionManager.canWriteSystemSettings())
+			Settings.System.putInt(contentResolver, Settings.System.USER_ROTATION, getNextRotation());
+		else
+			permissionManager.abortService();
 	}
 
 	public boolean isPortrait() {

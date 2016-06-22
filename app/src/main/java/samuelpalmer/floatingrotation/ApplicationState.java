@@ -3,23 +3,15 @@ package samuelpalmer.floatingrotation;
 import android.content.Context;
 
 import samuelpalmer.common.contentprovidersharedpreferences.ContentProviderSharedPreferences;
+import samuelpalmer.common.settings.application.BooleanSetting;
+import samuelpalmer.common.settings.application.Settings;
 
-public class ApplicationState {
-
-	private static final String ENABLED = "enabled";
-
-	private final ContentProviderSharedPreferences preferences;
+public class ApplicationState extends Settings {
 
 	public ApplicationState(Context context) {
-		preferences = new ContentProviderSharedPreferences(context, context.getString(R.string.content_authority), "application");
+		super(new ContentProviderSharedPreferences(context, context.getString(R.string.content_authority), "application"));
 	}
 
-	public boolean isEnabled() {
-		return preferences.getBoolean(ENABLED, false);
-	}
-
-	public void setEnabled(boolean enabled) {
-		preferences.edit().putBoolean(ENABLED, enabled).apply();
-	}
+	public final Setting<Boolean> enabled = new Setting<>(new BooleanSetting(), "enabled", false);
 
 }

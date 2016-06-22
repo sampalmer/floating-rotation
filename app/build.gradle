@@ -8,8 +8,7 @@ android {
 		applicationId "samuelpalmer.floatingrotation"
 		minSdkVersion 14
 
-		//noinspection OldTargetApi
-		targetSdkVersion 22 //Avoids the need to support runtime permission requests
+		targetSdkVersion 24
 
 		versionCode 4
 		versionName "0.3.0"

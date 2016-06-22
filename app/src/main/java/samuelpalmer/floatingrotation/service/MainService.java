@@ -21,6 +21,8 @@ import samuelpalmer.common.notifications.NotificationBuilderCompat;
 import samuelpalmer.common.notifications.NotificationButtons;
 import samuelpalmer.common.notifications.NotificationStyles;
 import samuelpalmer.floatingrotation.MainActivity;
+import samuelpalmer.floatingrotation.Ids;
+import samuelpalmer.floatingrotation.PermissionManager;
 import samuelpalmer.floatingrotation.R;
 
 public class MainService extends Service {
@@ -33,23 +35,31 @@ public class MainService extends Service {
 	private LockScreenMonitor lockScreenMonitor;
 	private PersistedState state;
 	private Integer actionButtonColour;
+	private PermissionManager permissionManager;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
+		permissionManager = new PermissionManager(this);
+		permissionManager.cancelNotification();
+
 		state = new PersistedState(this);
 
-		Boolean originalAutoRotation = state.originalSystemAutoRotation().tryGet();
-		if (originalAutoRotation == null) { //If the app previously crashed, we might still know the value
-			boolean value = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1) == 1;
-			state.originalSystemAutoRotation().set(value);
+		boolean currentSystemAutoRotation = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1) == 1;
+
+		if (permissionManager.canWriteSystemSettings()) {
+			Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+
+			Boolean originalSystemAutoRotation = state.originalSystemAutoRotation().tryGet();
+			if (originalSystemAutoRotation == null) //If the app previously crashed, we might still know the value
+				state.originalSystemAutoRotation().set(currentSystemAutoRotation);
 		}
+		else
+			permissionManager.abortService();
 
-		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
-
-		rotationState = new RotationState(this, rotationChanged);
-		buttonManager = new FloatingButtonManager(this, buttonImage(), buttonClickListener, state);
+		rotationState = new RotationState(this, rotationChanged, permissionManager);
+		buttonManager = new FloatingButtonManager(this, buttonImage(), buttonClickListener, state, permissionManager);
 		lockScreenMonitor = new LockScreenMonitor(this);
 
 		lockScreenMonitor.subscribe(notificationUpdater);
@@ -71,8 +81,13 @@ public class MainService extends Service {
 		rotationState = null;
 
 		boolean originalAutoRotation = state.originalSystemAutoRotation().get();
-		Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, originalAutoRotation ? 1 : 0);
-		state.originalSystemAutoRotation().remove();
+
+		if (permissionManager.canWriteSystemSettings()) {
+			Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, originalAutoRotation ? 1 : 0);
+			state.originalSystemAutoRotation().remove();
+		}
+		else
+			permissionManager.abortService();
 	}
 
 	private final RotationState.Listener rotationChanged = new RotationState.Listener() {
@@ -142,13 +157,13 @@ public class MainService extends Service {
 				.configureButton(
 						R.id.toggle_button_visibility,
 						buttonManager.isVisible() ? R.drawable.ic_action_visible : R.drawable.ic_action_invisible,
-						PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_BUTTON_VISIBILITY), PendingIntent.FLAG_UPDATE_CURRENT),
+						PendingIntent.getService(this, Ids.PendingIntent.TOGGLE_BUTTON_VISIBILITY, new Intent(this, MainService.class).setAction(TOGGLE_BUTTON_VISIBILITY), PendingIntent.FLAG_UPDATE_CURRENT),
 						"Toggle button visibility"
 				)
 				.configureButton(
 						R.id.toggle_rotation,
 						R.drawable.ic_action_toggle_rotation,
-						PendingIntent.getService(this, 2, new Intent(this, MainService.class).setAction(TOGGLE_SCREEN_ROTATION), PendingIntent.FLAG_UPDATE_CURRENT),
+						PendingIntent.getService(this, Ids.PendingIntent.TOGGLE_ROTATION, new Intent(this, MainService.class).setAction(TOGGLE_SCREEN_ROTATION), PendingIntent.FLAG_UPDATE_CURRENT),
 						"Toggle screen rotation"
 				)
 				.getContentView();
@@ -157,7 +172,7 @@ public class MainService extends Service {
 
 		Notification notification = builder.build();
 
-		startForeground(1, notification);
+		startForeground(Ids.Notification.SERVICE, notification);
 	}
 
 	@Override

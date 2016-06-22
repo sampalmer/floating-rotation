@@ -15,18 +15,19 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
 import samuelpalmer.common.settings.application.Settings.Transaction;
+import samuelpalmer.floatingrotation.PermissionManager;
 
 class FloatingButton {
 
 	private final Context context;
 	private final PersistedState storage;
 	private WindowManager windowManager;
-	private final ImageView view;
+	private ImageView view;
 	private LayoutParams layout;
 	private Point availableSpace = new Point();
 	private boolean initialised;
 
-	public FloatingButton(final Context context, final Listener listener, int imageResource, PersistedState state) {
+	public FloatingButton(final Context context, final Listener listener, int imageResource, PersistedState state, PermissionManager permissionManager) {
 		this.context = context;
 		this.storage = state;
 
@@ -108,15 +109,21 @@ class FloatingButton {
 
 		windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
-		//Should happen first so the view gets dimensions
-		windowManager.addView(view, layout);
+		if (permissionManager.canDrawOverlays())
+			//Should happen first so the view gets dimensions
+			windowManager.addView(view, layout);
+		else
+			permissionManager.abortService();
 	}
 
 	public void destroy() {
 		if (initialised) {
+			view.setOnTouchListener(null);
 			context.unregisterComponentCallbacks(configChangedCallback);
-			windowManager.removeView(view);
 		}
+
+		if (view.getParent() != null)
+			windowManager.removeView(view);
 	}
 
 	public void setImage(int imageResource) {
