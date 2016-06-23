@@ -1,5 +1,6 @@
 package samuelpalmer.floatingrotation.service;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -27,6 +28,7 @@ class FloatingButton {
 	private Point availableSpace = new Point();
 	private boolean initialised;
 
+	@SuppressLint("RtlHardcoded")
 	public FloatingButton(final Context context, final Listener listener, int imageResource, PersistedState state, PermissionManager permissionManager) {
 		this.context = context;
 		this.storage = state;
