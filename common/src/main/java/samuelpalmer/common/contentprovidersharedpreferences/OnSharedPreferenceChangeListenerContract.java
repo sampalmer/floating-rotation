@@ -7,6 +7,8 @@ import android.os.IBinder;
 import java.util.HashMap;
 import java.util.Map;
 
+import samuelpalmer.common.ParcelableBinder;
+
 abstract class OnSharedPreferenceChangeListenerContract implements Contract<IContentProviderSharedPreferenceChangeListener, Void> {
 
 	private static final String BINDER = "binder";

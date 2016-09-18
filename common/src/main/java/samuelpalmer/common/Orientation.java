@@ -1,7 +1,10 @@
 package samuelpalmer.common;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 @SuppressWarnings("unused")
-public class Orientation {
+public class Orientation implements Parcelable {
 
 	private static final int numberOfPossibleRotations = 4;
 	public static final Orientation NATURAL = new Orientation(0);
@@ -16,6 +19,27 @@ public class Orientation {
 			throw new IllegalArgumentException("Unknown orientation: " + clockwiseRotationsFromNaturalOrientation);
 
 		this.clockwiseRotationsFromNaturalOrientation = clockwiseRotationsFromNaturalOrientation;
+	}
+
+	protected Orientation(Parcel in) {
+		clockwiseRotationsFromNaturalOrientation = in.readInt();
+	}
+
+	public static final Creator<Orientation> CREATOR = new Creator<Orientation>() {
+		@Override
+		public Orientation createFromParcel(Parcel in) {
+			return new Orientation(in);
+		}
+
+		@Override
+		public Orientation[] newArray(int size) {
+			return new Orientation[size];
+		}
+	};
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(clockwiseRotationsFromNaturalOrientation);
 	}
 
 	public Rotation minus(Orientation other) {
@@ -60,4 +84,8 @@ public class Orientation {
 		return clockwiseRotationsFromNaturalOrientation % 2 == 0;
 	}
 
+	@Override
+	public int describeContents() {
+		return 0;
+	}
 }

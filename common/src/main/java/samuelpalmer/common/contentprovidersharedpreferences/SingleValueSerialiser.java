@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import samuelpalmer.common.ParcelableBinder;
+
 abstract class SingleValueSerialiser {
 	public static void serialise(Bundle result, String key, Object currentValue) {
 		if (currentValue == null || currentValue instanceof String)

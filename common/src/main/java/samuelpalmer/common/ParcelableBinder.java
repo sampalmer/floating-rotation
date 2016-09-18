@@ -1,10 +1,10 @@
-package samuelpalmer.common.contentprovidersharedpreferences;
+package samuelpalmer.common;
 
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-class ParcelableBinder implements Parcelable {
+public class ParcelableBinder implements Parcelable {
 
 	public final IBinder binder;
 
