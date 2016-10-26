@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build.VERSION;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -92,12 +90,7 @@ public final class NotificationStyles {
 
 				for (StyleType type : new StyleType[] {title, actionButton})
 					if (text.equals(type.searchTip))
-					{
-						DisplayMetrics metrics = new DisplayMetrics();
-						WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-						windowManager.getDefaultDisplay().getMetrics(metrics);
 						type.colour = textView.getTextColors().getDefaultColor();
-					}
 			}
 			else if (view instanceof ViewGroup)
 				recurseGroup((ViewGroup) view);
