@@ -88,6 +88,7 @@ public final class NotificationStyles {
 				TextView textView = (TextView) view;
 				String text = textView.getText().toString();
 
+				//It'd be nice to be able to get the actual action *icon*'s colour instead of its text colour, but doing so seems too difficult.
 				for (StyleType type : new StyleType[] {title, actionButton})
 					if (text.equals(type.searchTip))
 						type.colour = textView.getTextColors().getDefaultColor();
