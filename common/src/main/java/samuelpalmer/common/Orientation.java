@@ -14,6 +14,7 @@ public class Orientation implements Parcelable {
 
 	private final int clockwiseRotationsFromNaturalOrientation;
 
+	//TODO: Replace this with a factory method and reuse a single pool of objects to reduce heap allocation
 	public Orientation(int clockwiseRotationsFromNaturalOrientation) throws IllegalArgumentException {
 		if (clockwiseRotationsFromNaturalOrientation < 0 || clockwiseRotationsFromNaturalOrientation >= numberOfPossibleRotations)
 			throw new IllegalArgumentException("Unknown orientation: " + clockwiseRotationsFromNaturalOrientation);
