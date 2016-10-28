@@ -2,6 +2,9 @@ package samuelpalmer.common.settings.application;
 
 import android.content.SharedPreferences;
 
+/**
+ * A higher-level type of setting. Stores values by converting to underlying Android preference types.
+ */
 public abstract class WrapperSetting<TValue, TUnderlying> extends SettingType<TValue> {
 	private final SettingType<TUnderlying> underlying;
 

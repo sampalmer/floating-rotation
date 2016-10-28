@@ -7,6 +7,7 @@ public class Rotation {
 
 	private final int clockwiseRotations;
 
+	//TODO: Replace this with a factory method and the flyweight(?) pattern?
 	public Rotation(int clockwiseRotations) {
 		this.clockwiseRotations = clockwiseRotations;
 	}

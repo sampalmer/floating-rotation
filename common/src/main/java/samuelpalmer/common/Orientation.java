@@ -54,6 +54,10 @@ public class Orientation implements Parcelable {
 		return new Orientation(wrappedResultingClockwiseIndex);
 	}
 
+	public Orientation minus(Rotation other) {
+		return plus(new Rotation(-other.clockwiseCount()));
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		return o != null
