@@ -1,7 +1,7 @@
 package samuelpalmer.common;
 
 /**
- * Represents the difference between two orientations; change in orientation
+ * Represents the difference between two {@link Orientation}s in quarter (90 degree) turns.
  */
 public class Rotation {
 
@@ -21,4 +21,15 @@ public class Rotation {
 		return clockwiseRotations + " clockwise turn" + (clockwiseRotations == 1 ? "" : "s");
 	}
 
+	public Rotation negate() {
+		return new Rotation(-clockwiseRotations);
+	}
+
+	public boolean isRevolution() {
+		return clockwiseRotations % 4 == 0;
+	}
+
+	public Rotation plus(Rotation other) {
+		return new Rotation(clockwiseRotations + other.clockwiseRotations);
+	}
 }
