@@ -32,4 +32,16 @@ public class Rotation {
 	public Rotation plus(Rotation other) {
 		return new Rotation(clockwiseRotations + other.clockwiseRotations);
 	}
+
+	public Rotation minus(Rotation other) {
+		return plus(other.negate());
+	}
+
+	public Orientation plus(Orientation other) {
+		return other.plus(this);
+	}
+
+	public Orientation minus(Orientation other) {
+		return plus(other.negate());
+	}
 }

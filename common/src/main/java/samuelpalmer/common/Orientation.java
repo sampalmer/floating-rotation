@@ -43,6 +43,12 @@ public class Orientation implements Parcelable {
 		dest.writeInt(clockwiseRotationsFromNaturalOrientation);
 	}
 
+	public Orientation negate() {
+		int unwrapped = -this.clockwiseRotationsFromNaturalOrientation;
+		int wrapped = IntegerUtilities.wrap(unwrapped, numberOfPossibleRotations);
+		return new Orientation(wrapped);
+	}
+
 	public Rotation minus(Orientation other) {
 		return new Rotation(getClockwiseRotationsFromNaturalOrientation() - other.getClockwiseRotationsFromNaturalOrientation());
 	}
@@ -55,7 +61,7 @@ public class Orientation implements Parcelable {
 	}
 
 	public Orientation minus(Rotation other) {
-		return plus(new Rotation(-other.clockwiseCount()));
+		return plus(other.negate());
 	}
 
 	@Override
