@@ -16,8 +16,10 @@ abstract class SingleValueSerialiser {
 	public static void serialise(Bundle result, String key, Object currentValue) {
 		if (currentValue == null || currentValue instanceof String)
 			result.putString(key, (String)currentValue);
-		else if (currentValue instanceof Set)
-			result.putStringArray(key, (String[])((Set) currentValue).toArray());
+		else if (currentValue instanceof Set) {
+			Set<String> currentValueStringSet = (Set<String>) currentValue;
+			result.putStringArray(key, currentValueStringSet.toArray(new String[currentValueStringSet.size()]));
+		}
 		else if (currentValue instanceof Integer)
 			result.putInt(key, (int) currentValue);
 		else if (currentValue instanceof Long)
