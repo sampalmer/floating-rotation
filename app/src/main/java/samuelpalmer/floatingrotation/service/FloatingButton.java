@@ -124,7 +124,7 @@ class FloatingButton {
 			context.unregisterComponentCallbacks(configChangedCallback);
 		}
 
-		if (view.getParent() != null)
+		if (view.getParent() != null) //The view might not have been added to the window manager
 			windowManager.removeView(view);
 	}
 
