@@ -45,7 +45,9 @@ public class NotificationBuilderCompat {
 	public static NotificationBuilderCompat create(Context context) {
 		NotificationBuilderCompat result;
 
-		if (VERSION.SDK_INT >= 24)
+		if (Build.VERSION.SDK_INT >= 26 || Build.VERSION.SDK_INT == 25 && Build.VERSION.PREVIEW_SDK_INT >= 1)
+			result = new V26();
+		else if (VERSION.SDK_INT >= 24)
 			result = new V24();
 		else if (Build.VERSION.SDK_INT >= 23)
 			result = new V23();
@@ -151,6 +153,10 @@ public class NotificationBuilderCompat {
 		return build().contentView;
 	}
 
+	public NotificationBuilderCompat setChannel(String channelId) {
+		return this;
+	}
+
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	private static class V16 extends NotificationBuilderCompat
 	{
@@ -238,6 +244,16 @@ public class NotificationBuilderCompat {
 		@Override
 		public RemoteViews createContentView() {
 			return builder.createContentView();
+		}
+	}
+
+	@TargetApi(VERSION_CODES.O)
+	private static class V26 extends V24
+	{
+		@Override
+		public NotificationBuilderCompat setChannel(String channelId) {
+			builder.setChannel(channelId);
+			return this;
 		}
 	}
 }
