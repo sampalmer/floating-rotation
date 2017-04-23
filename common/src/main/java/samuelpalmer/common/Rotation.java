@@ -33,10 +33,12 @@ public class Rotation {
 		return new Rotation(clockwiseRotations + other.clockwiseRotations);
 	}
 
+	@SuppressWarnings("unused")
 	public Rotation minus(Rotation other) {
 		return plus(other.negate());
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public Orientation plus(Orientation other) {
 		return other.plus(this);
 	}

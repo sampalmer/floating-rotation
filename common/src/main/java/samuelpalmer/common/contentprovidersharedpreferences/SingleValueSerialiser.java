@@ -17,6 +17,7 @@ abstract class SingleValueSerialiser {
 		if (currentValue == null || currentValue instanceof String)
 			result.putString(key, (String)currentValue);
 		else if (currentValue instanceof Set) {
+			//noinspection unchecked
 			Set<String> currentValueStringSet = (Set<String>) currentValue;
 			result.putStringArray(key, currentValueStringSet.toArray(new String[currentValueStringSet.size()]));
 		}
