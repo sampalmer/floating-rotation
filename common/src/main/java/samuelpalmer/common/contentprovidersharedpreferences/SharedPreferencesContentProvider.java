@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 public class SharedPreferencesContentProvider extends ContentProvider {
 
@@ -16,7 +17,7 @@ public class SharedPreferencesContentProvider extends ContentProvider {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Bundle call(String method, String sharedPreferencesName, Bundle extras) {
+	public Bundle call(@NonNull String method, String sharedPreferencesName, Bundle extras) {
 		Contract contract = ContractMap.lookup(method);
 		Object args = contract.deserialiseArgs(extras);
 		@SuppressWarnings("ConstantConditions")
@@ -31,27 +32,27 @@ public class SharedPreferencesContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		throw notSupported();
 	}
 
 	@Override
-	public String getType(Uri uri) {
+	public String getType(@NonNull Uri uri) {
 		return null;
 	}
 
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public Uri insert(@NonNull Uri uri, ContentValues values) {
 		throw notSupported();
 	}
 
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		throw notSupported();
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		throw notSupported();
 	}
 
