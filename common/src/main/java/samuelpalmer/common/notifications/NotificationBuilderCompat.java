@@ -12,9 +12,9 @@ import android.os.Build.VERSION_CODES;
 import android.widget.RemoteViews;
 
 /**
- * A reinvented clone of NotificationCompat.Builder with the following improvements:
- * - setShowWhen() works on API 17 & 18
- * - createContentView() and createBigContentView() added
+ * A reinvented clone of NotificationCompat.Builder that fixes the following issues:
+ * - setShowWhen() not working on API 17 & 18 (https://issuetracker.google.com/issues/37048073)
+ * - createContentView() and createBigContentView() missing (https://issuetracker.google.com/issues/37609039)
  */
 @SuppressWarnings({"UnusedDeclaration", "UnusedReturnValue", "ClassWithTooManyMethods"})
 public class NotificationBuilderCompat {
