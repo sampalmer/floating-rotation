@@ -151,6 +151,11 @@ public class NotificationBuilderCompat {
 		//noinspection deprecation
 		return build().contentView;
 	}
+	
+	public NotificationBuilderCompat setProgress(int max, int progress, boolean indeterminate) {
+		builder.setProgress(max, progress, indeterminate);
+		return this;
+	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	private static class V16 extends NotificationBuilderCompat
