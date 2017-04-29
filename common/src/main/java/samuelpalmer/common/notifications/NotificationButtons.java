@@ -31,7 +31,7 @@ public class NotificationButtons {
 		content.setImageViewResource(id, icon);
 		
 		content.setInt(id, "setColorFilter", buttonColourArgb);
-		content.setInt(id, VERSION.SDK_INT >= 16 ? "setImageAlpha" : "setAlpha", enabled ? 255 : 128); //TODO: Replace this with an XML state list for the drawable. http://stackoverflow.com/a/41714547/238753
+		content.setInt(id, VERSION.SDK_INT >= 16 ? "setImageAlpha" : "setAlpha", enabled ? 255 : 128);
 		
 		content.setOnClickPendingIntent(id, onClickIntent);
 
