@@ -2,6 +2,8 @@ package samuelpalmer.common;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 @SuppressWarnings("unused")
 public class Orientation implements Parcelable {
@@ -49,23 +51,23 @@ public class Orientation implements Parcelable {
 		return new Orientation(wrapped);
 	}
 
-	public Rotation minus(Orientation other) {
+	public Rotation minus(@NonNull Orientation other) {
 		return new Rotation(getClockwiseRotationsFromNaturalOrientation() - other.getClockwiseRotationsFromNaturalOrientation());
 	}
 
-	public Orientation plus(Rotation change) {
+	public Orientation plus(@NonNull Rotation change) {
 		int unwrappedResultingClockwiseIndex = getClockwiseRotationsFromNaturalOrientation() + change.clockwiseCount();
 		int wrappedResultingClockwiseIndex = IntegerUtilities.wrap(unwrappedResultingClockwiseIndex, numberOfPossibleRotations);
 
 		return new Orientation(wrappedResultingClockwiseIndex);
 	}
 
-	public Orientation minus(Rotation other) {
+	public Orientation minus(@NonNull Rotation other) {
 		return plus(other.negate());
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o != null
 				&& this.getClass() == o.getClass()
 				&& this.getClockwiseRotationsFromNaturalOrientation() == ((Orientation) o).getClockwiseRotationsFromNaturalOrientation();
