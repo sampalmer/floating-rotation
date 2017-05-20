@@ -34,7 +34,7 @@ public class NotificationButtons {
 
 		if (VERSION.SDK_INT >= 15)
 			content.setContentDescription(id, contentDescription);
-
+		
 		return this;
 	}
 

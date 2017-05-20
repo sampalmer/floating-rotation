@@ -74,7 +74,10 @@ public class Screen {
 		return result;
 	}
 
-	@SuppressLint("NewApi") /** Since {@link Display#getRealSize(Point)} is actually available as of API 14 */
+	/**
+	 *  Since {@link Display#getRealSize(Point)} is actually available as of API 14
+	 */
+	@SuppressLint("NewApi")
 	private Point currentScreenResolution() {
 		Point screenResolution = new Point();
 		display.getRealSize(screenResolution);

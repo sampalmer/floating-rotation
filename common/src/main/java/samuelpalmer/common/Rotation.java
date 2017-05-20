@@ -1,5 +1,7 @@
 package samuelpalmer.common;
 
+import android.support.annotation.NonNull;
+
 /**
  * Represents the difference between two {@link Orientation}s in quarter (90 degree) turns.
  */
@@ -29,19 +31,21 @@ public class Rotation {
 		return clockwiseRotations % 4 == 0;
 	}
 
-	public Rotation plus(Rotation other) {
+	public Rotation plus(@NonNull Rotation other) {
 		return new Rotation(clockwiseRotations + other.clockwiseRotations);
 	}
 
-	public Rotation minus(Rotation other) {
+	@SuppressWarnings("unused")
+	public Rotation minus(@NonNull Rotation other) {
 		return plus(other.negate());
 	}
 
-	public Orientation plus(Orientation other) {
+	@SuppressWarnings("WeakerAccess")
+	public Orientation plus(@NonNull Orientation other) {
 		return other.plus(this);
 	}
 
-	public Orientation minus(Orientation other) {
+	public Orientation minus(@NonNull Orientation other) {
 		return plus(other.negate());
 	}
 }
