@@ -18,7 +18,7 @@ class Remote {
 	}
 
 	public <TArgs, TResult> TResult process(Contract<TArgs, TResult> contract, TArgs args) {
-		Bundle serialisedResult = contentResolver.call(
+		Bundle resultWrapper = contentResolver.call(
 			new Uri.Builder()
 				.scheme("content")
 				.authority(authority)
@@ -28,10 +28,13 @@ class Remote {
 			contract.serialiseArgs(args)
 		);
 
-		if (serialisedResult == null)
-			throw new RuntimeException("Got back null. The content provider probably crashed.");
-
-		return contract.deserialiseResult(serialisedResult);
+		if (resultWrapper != null) { // I'm pretty sure I've seen this set to null when the content provider crashed.
+			Bundle serialisedResult = resultWrapper.getBundle(null);
+			if (serialisedResult != null) // Sometimes when the content provider crashes, it returns an empty bundle.
+				return contract.deserialiseResult(serialisedResult);
+		}
+		
+		throw new RuntimeException("Didn't get a result. The content provider probably crashed.");
 	}
 
 }

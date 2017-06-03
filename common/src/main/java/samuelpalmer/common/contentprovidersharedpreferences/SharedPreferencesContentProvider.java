@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 public class SharedPreferencesContentProvider extends ContentProvider {
-
+	
 	@Override
 	public boolean onCreate() {
 		return true;
@@ -22,13 +22,18 @@ public class SharedPreferencesContentProvider extends ContentProvider {
 		Object args = contract.deserialiseArgs(extras);
 		@SuppressWarnings("ConstantConditions")
 		SharedPreferences preferences = getContext().getSharedPreferences(sharedPreferencesName, 0);
+		
 		Object result = contract.process(preferences, args);
 		Bundle serialisedResult = contract.serialiseResult(result);
-
 		if (serialisedResult == null)
-			throw new RuntimeException("Serialised result was null. null is reserved for error conditions.");
-
-		return serialisedResult;
+			throw new RuntimeException("Serialised result was null.");
+		
+		// Sometimes Android sends back an empty bundle to the client when the content provider code crashes.
+		// So we're wrapping the result in a bundle to ensure all valid results look different to an error result.
+		Bundle resultWrapper = new Bundle();
+		resultWrapper.putBundle(null, serialisedResult);
+		
+		return resultWrapper;
 	}
 
 	@Override
