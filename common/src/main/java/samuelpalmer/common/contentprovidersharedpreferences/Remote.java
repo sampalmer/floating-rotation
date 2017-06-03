@@ -29,7 +29,15 @@ class Remote {
 		);
 
 		if (resultWrapper != null) { // I'm pretty sure I've seen this set to null when the content provider crashed.
-			Bundle serialisedResult = resultWrapper.getBundle(null);
+			Throwable error = (Throwable) resultWrapper.getSerializable(SharedPreferencesContentProvider.KEY_ERROR);
+			if (error != null)
+				if (error instanceof RuntimeException)
+					// Not wrapping the error unnecessarily since Google Play Console only shows the first inner exception;
+					throw (RuntimeException)error;
+				else
+					throw new RuntimeException("Error occurred in content provider", error);
+			
+			Bundle serialisedResult = resultWrapper.getBundle(SharedPreferencesContentProvider.KEY_RESULT);
 			if (serialisedResult != null) // Sometimes when the content provider crashes, it returns an empty bundle.
 				return contract.deserialiseResult(serialisedResult);
 		}

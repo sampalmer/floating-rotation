@@ -10,6 +10,9 @@ import android.support.annotation.NonNull;
 
 public class SharedPreferencesContentProvider extends ContentProvider {
 	
+	static final String KEY_RESULT = "result";
+	static final String KEY_ERROR = "error";
+	
 	@Override
 	public boolean onCreate() {
 		return true;
@@ -18,20 +21,28 @@ public class SharedPreferencesContentProvider extends ContentProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Bundle call(@NonNull String method, String sharedPreferencesName, Bundle extras) {
-		Contract contract = ContractMap.lookup(method);
-		Object args = contract.deserialiseArgs(extras);
-		@SuppressWarnings("ConstantConditions")
-		SharedPreferences preferences = getContext().getSharedPreferences(sharedPreferencesName, 0);
-		
-		Object result = contract.process(preferences, args);
-		Bundle serialisedResult = contract.serialiseResult(result);
-		if (serialisedResult == null)
-			throw new RuntimeException("Serialised result was null.");
-		
-		// Sometimes Android sends back an empty bundle to the client when the content provider code crashes.
-		// So we're wrapping the result in a bundle to ensure all valid results look different to an error result.
 		Bundle resultWrapper = new Bundle();
-		resultWrapper.putBundle(null, serialisedResult);
+		
+		try {
+			Contract contract = ContractMap.lookup(method);
+			Object args = contract.deserialiseArgs(extras);
+			@SuppressWarnings("ConstantConditions")
+			SharedPreferences preferences = getContext().getSharedPreferences(sharedPreferencesName, 0);
+
+			Object result = contract.process(preferences, args);
+			Bundle serialisedResult = contract.serialiseResult(result);
+			if (serialisedResult == null)
+				throw new RuntimeException("Serialised result was null.");
+
+			// Sometimes Android sends back an empty bundle to the client when the content provider code crashes.
+			// So we're wrapping the result in a bundle to ensure all valid results look different to an error result.
+			resultWrapper.putBundle(KEY_RESULT, serialisedResult);
+		}
+		catch (Throwable error) {
+			// Android appears to swallow errors thrown here, which prevents them from being reported to Google Play.
+			// So we'll send them to the client to throw them from there instead.
+			resultWrapper.putSerializable(KEY_ERROR, error);
+		}
 		
 		return resultWrapper;
 	}
