@@ -9,7 +9,7 @@ import java.util.Map;
 
 import samuelpalmer.common.ParcelableBinder;
 
-abstract class OnSharedPreferenceChangeListenerContract implements Contract<IContentProviderSharedPreferenceChangeListener, Void> {
+abstract class OnSharedPreferenceChangeListenerContract<TResult> implements Contract<IContentProviderSharedPreferenceChangeListener, TResult> {
 
 	private static final String BINDER = "binder";
 	static final Map<IBinder, ServerListener> listeners = new HashMap<>();
@@ -38,13 +38,5 @@ abstract class OnSharedPreferenceChangeListenerContract implements Contract<ICon
 		IBinder binder = (IBinder) SingleValueSerialiser.deserialise(serialised.get(BINDER));
 		return IContentProviderSharedPreferenceChangeListener.Stub.asInterface(binder);
 	}
-
-	public Bundle serialiseResult(Void value) {
-		return new Bundle();
-	}
-
-	public Void deserialiseResult(Bundle serialised) {
-		return null;
-	}
-
+	
 }

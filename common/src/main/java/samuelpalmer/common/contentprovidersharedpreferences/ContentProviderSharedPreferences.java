@@ -2,6 +2,8 @@ package samuelpalmer.common.contentprovidersharedpreferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,21 +62,62 @@ public class ContentProviderSharedPreferences implements SharedPreferences {
 		return new MultiProcessEditor(remote);
 	}
 
-	private final HashMap<OnSharedPreferenceChangeListener, ClientListener> mListeners = new HashMap<>();
+	private final HashMap<OnSharedPreferenceChangeListener, ClientListenerRecord> mListeners = new HashMap<>();
 
 	public void registerOnSharedPreferenceChangeListener(final OnSharedPreferenceChangeListener listener) {
-		synchronized(this) {
-			ClientListener client = new ClientListener(this, listener);
-			remote.process(new RegisterOnSharedPreferenceChangeListenerContract(), client);
-			mListeners.put(listener, client);
+		synchronized(mListeners) {
+			registerListenerLocked(listener);
 		}
 	}
-
+	
+	private void registerListenerLocked(final OnSharedPreferenceChangeListener listener) {
+		final ClientListener client = new ClientListener(this, listener);
+		
+		IBinder serverBinder = remote.process(new RegisterOnSharedPreferenceChangeListenerContract(), client);
+		IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
+			@Override
+			public void binderDied() {
+				// No need to unlink to death since that the server process is already dead
+				// No need to send an unsubscribe message to the server since the server died
+				
+				synchronized(mListeners) {
+					mListeners.remove(listener);
+					registerListenerLocked(listener);
+				}
+				
+				// It's possible that the preference values changed since the binder died, so we'll update all subscribers.
+				// TODO: This won't pick up preferences that have since been removed. Add support for that.
+				for (String preferenceKey : ContentProviderSharedPreferences.this.getAll().keySet()) {
+					try {
+						client.onSharedPreferenceChanged(preferenceKey);
+					} catch (RemoteException e) {
+						throw new RuntimeException(e); // This should never happen since it's in the same process.
+					}
+				}
+			}
+		};
+		
+		ClientListenerRecord record = new ClientListenerRecord(client, serverBinder, deathRecipient);
+		
+		try {
+			record.serverBinder.linkToDeath(record.deathRecipient, 0);
+		} catch (RemoteException e) {
+			// Server process died, so we'll try again
+			// This could lead to infinite recursion...
+			registerListenerLocked(listener);
+			return;
+		}
+		
+		mListeners.put(listener, record);
+	}
+	
 	public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
-		synchronized(this) {
-			ClientListener client = mListeners.remove(listener);
-			if (client != null)
-				remote.process(new UnregisterOnSharedPreferenceChangeListenerContract(), client);
+		synchronized(mListeners) {
+			ClientListenerRecord record = mListeners.remove(listener);
+			if (record != null) {
+				record.serverBinder.unlinkToDeath(record.deathRecipient, 0);
+				remote.process(new UnregisterOnSharedPreferenceChangeListenerContract(), record.listener);
+			}
 		}
 	}
 
