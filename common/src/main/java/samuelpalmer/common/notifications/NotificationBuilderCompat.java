@@ -46,7 +46,7 @@ public class NotificationBuilderCompat {
 	public static NotificationBuilderCompat create(Context context) {
 		NotificationBuilderCompat result;
 
-		if (Build.VERSION.SDK_INT >= 26 || Build.VERSION.SDK_INT == 25 && Build.VERSION.PREVIEW_SDK_INT >= 1)
+		if (Build.VERSION.SDK_INT >= 26)
 			result = new V26();
 		else if (VERSION.SDK_INT >= 24)
 			result = new V24();
@@ -60,15 +60,21 @@ public class NotificationBuilderCompat {
 			result = new V16();
 		else
 			result = new NotificationBuilderCompat();
-
-		result.context = context;
-		result.builder = new Notification.Builder(context);
-
+		
+		result.setContext(context);
+		
 		return result;
 	}
-
+	
 	protected Context context;
 	protected Notification.Builder builder;
+	
+	protected void setContext(Context context) {
+		this.context = context;
+		
+		//noinspection deprecation
+		this.builder = new Notification.Builder(context);
+	}
 
 	public NotificationBuilderCompat setSmallIcon(int icon) {
 		builder.setSmallIcon(icon);
@@ -131,6 +137,7 @@ public class NotificationBuilderCompat {
 	}
 
 	public NotificationBuilderCompat setVibrate(long[] pattern) {
+		//noinspection deprecation
 		builder.setVibrate(pattern);
 		return this;
 	}
@@ -159,7 +166,7 @@ public class NotificationBuilderCompat {
 		return this;
 	}
 
-	public NotificationBuilderCompat setChannel(String channelId) {
+	public NotificationBuilderCompat setChannelId(String channelId) {
 		return this;
 	}
 
@@ -173,6 +180,7 @@ public class NotificationBuilderCompat {
 
 		@Override
 		public NotificationBuilderCompat setPriority(int pri) {
+			//noinspection deprecation
 			builder.setPriority(pri);
 			return this;
 		}
@@ -257,8 +265,24 @@ public class NotificationBuilderCompat {
 	private static class V26 extends V24
 	{
 		@Override
-		public NotificationBuilderCompat setChannel(String channelId) {
-			builder.setChannel(channelId);
+		protected void setContext(Context context) {
+			this.context = context;
+			this.builder = new Notification.Builder(context, null);
+		}
+		
+		@Override
+		public NotificationBuilderCompat setVibrate(long[] pattern) {
+			return this;
+		}
+		
+		@Override
+		public NotificationBuilderCompat setPriority(int pri) {
+			return this;
+		}
+		
+		@Override
+		public NotificationBuilderCompat setChannelId(String channelId) {
+			builder.setChannelId(channelId);
 			return this;
 		}
 	}
