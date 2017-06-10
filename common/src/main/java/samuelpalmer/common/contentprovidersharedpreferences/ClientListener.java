@@ -10,7 +10,7 @@ class ClientListener extends IContentProviderSharedPreferenceChangeListener.Stub
 	private final ContentProviderSharedPreferences sharedPreferences;
 	private final OnSharedPreferenceChangeListener client;
 	private final Handler handler;
-
+	
 	public ClientListener(ContentProviderSharedPreferences sharedPreferences, OnSharedPreferenceChangeListener client) {
 		this.sharedPreferences = sharedPreferences;
 		this.client = client;

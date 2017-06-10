@@ -1,8 +1,9 @@
 package samuelpalmer.common.contentprovidersharedpreferences;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 
-class UnregisterOnSharedPreferenceChangeListenerContract extends OnSharedPreferenceChangeListenerContract {
+class UnregisterOnSharedPreferenceChangeListenerContract extends OnSharedPreferenceChangeListenerContract<Void> {
 
 	@Override
 	public String methodName() {
@@ -14,5 +15,13 @@ class UnregisterOnSharedPreferenceChangeListenerContract extends OnSharedPrefere
 		unsubscribe(sharedPreferences, listener.asBinder());
 		return null;
 	}
-
+	
+	public Bundle serialiseResult(Void value) {
+		return new Bundle();
+	}
+	
+	public Void deserialiseResult(Bundle serialised) {
+		return null;
+	}
+	
 }
